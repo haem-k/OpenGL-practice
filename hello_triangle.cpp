@@ -48,7 +48,7 @@ int main()
     // ex. position data of the triangle does not change, used a lot, stays the same for every render call -> GL_STATIC_DRAW
 
 
-    // ============================================================ //
+    // ==================================================================================== //
     // * Compile vertex shader
     // OpenGL dynamically compile shader at run-time from its source code
     unsigned int vertexShader;                                      // ID for shader object
@@ -88,6 +88,22 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);                     // Have to delete after making a program. will not be used
 
+    // ==================================================================================== //
+    // ! OpenGL does not yet know 
+    // - how it should INTERPRET the vertex data in memory
+    // - how it should CONNECT the vertex data to the vertex shader's attributes
+
+    // Tell OpenGL how it should interpret the vertex data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);   // enable the vertex attribute, giving the vertex attribute location as argument. it is disabled by default.
+
+    // * glVertexAttribPointer
+    // 1 - which vertex attribute we want to configure, specified the location 'layout (location=0)'
+    // 2 - size of the attribute, vec3
+    // 3 - data type
+    // 4 - do we want our data to be normalized?, when the data is INT this normalized data to 0 / 1 if converted to float
+    // 5 - stride: the space between consecutive vertex attributes
+    // 6 - offset: where the position data begins in the buffer
 
 
 
