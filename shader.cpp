@@ -26,3 +26,14 @@ void main()
 
 // -> no processing at all, the most simple vertex shader
 */
+
+/* Fragment Shader */
+// All about calculating the color output of the pixels!
+// #version 330 core
+// out vec4 FragColor;
+
+// void main()
+// {
+//     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+// }
+// Fragment shader only one output -> color, vec4
