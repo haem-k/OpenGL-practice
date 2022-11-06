@@ -105,7 +105,26 @@ int main()
     // 5 - stride: the space between consecutive vertex attributes
     // 6 - offset: where the position data begins in the buffer
 
+    // ==================================================================================== //
+    // Bind buffer, set attibute, enable them, use program, draw the object
+    // have to repeat everytime we draw something..
+    // -> Store all states into an object & simply bind this object to restore its state?
 
+    // * Vertex Array Object (VAO)
+    // VBO + attribute pointers 
+    // Once bound, 
+    // Any subsequent vertex attribute calls from that point on will be stored inside the VAO
+    // when configuring vertex attrib pointers, make calls once & just bind the corresponding VAO
+    //  - refer to the image in the website WOW
+
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    // 1 - primitive type
+    // 2 - starting index of vertex array
+    // 3 - number of vertices
 
 }
 
