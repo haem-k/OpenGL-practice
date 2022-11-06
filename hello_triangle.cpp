@@ -48,14 +48,15 @@ int main()
     // ex. position data of the triangle does not change, used a lot, stays the same for every render call -> GL_STATIC_DRAW
 
 
-    /* Compile vertex shader */
+    // ============================================================ //
+    // * Compile vertex shader
     // OpenGL dynamically compile shader at run-time from its source code
     unsigned int vertexShader;                                      // ID for shader object
     vertexShader = glCreateShader(GL_VERTEX_SHADER);                // provide type of shader we want to create
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);     // second argument: how many strings we are passing as source code, which is 1 for now
     glCompileShader(vertexShader);
 
-    // * Checking if the shader compilation is successfull
+    // Checking if the shader compilation is successfull
     int success;
     char infoLog[512];
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -65,11 +66,30 @@ int main()
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
-    /* Compile fragment shader */
+    // * Compile fragment shader
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
+
+    // * Link the compiled shaders
+    // To use the recently compiled shaders, LINK them and ACTIVATE the shader program when rendering objects
+    // activated shader programs's shaders will be used when we issue render calls
+
+    // Linking
+    // - links the output of each shader to the inputs of the next shader
+    // - errors if the output and input does not match
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);                       // -> result: program object that we can activate by calling 'glUseProgram'
+    glUseProgram(shaderProgram);                        // Every shader and rendering call after this line will use this program object
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);                     // Have to delete after making a program. will not be used
+
+
+
 
 }
 
