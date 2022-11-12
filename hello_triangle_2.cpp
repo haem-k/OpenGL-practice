@@ -47,8 +47,9 @@ int main()
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window); // Tell GLFW to make the context of our window the main context on the current thread
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // Tell GLFW that we want to call this function on every window resize
+    glfwMakeContextCurrent(window);
+    // We register the callback functions after we have created the window and before the render loop is initiated
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // GLAD manages function pointers for OpenGL
     // -> initialize GLAD before we call any OpenGL function
@@ -60,11 +61,12 @@ int main()
 
     // ==================================================================================== //
     // * Compile vertex shader
-    // OpenGL dynamically compile shader at run-time from its source code
     unsigned int vertexShader;                                      // ID for shader object
     vertexShader = glCreateShader(GL_VERTEX_SHADER);                // provide type of shader we want to create
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);     // second argument: how many strings we are passing as source code, which is 1 for now
     glCompileShader(vertexShader);
+    
+    // Check for any errors
     int success;
     char infoLog[512];
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -73,30 +75,34 @@ int main()
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+
     // * Compile fragment shader
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
+    // Check for errors
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+
     // * Link the compiled shaders
     unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);                       // -> result: program object that we can activate by calling 'glUseProgram'
+    // Check for errors
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }    
     glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);                     // Have to delete after making a program. will not be used
+    glDeleteShader(fragmentShader);
 
     // ==================================================================================== //
     /* Send vertex data to GPU */
@@ -106,15 +112,6 @@ int main()
         0.5f, -0.5f, 0.0f,
         0.0f, 0.5f, 0.0f
     };
-
-    // // * Vertex Buffer Objects(VBO)
-    // unsigned int VBO;
-    // glGenBuffers(1, &VBO); // unique ID corresponding to that buffer, 
-
-    // // * Vertex Array Object (VAO)
-    // unsigned int VAO;
-    // glGenVertexArrays(1, &VAO);
-    // glBindVertexArray(VAO);
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -130,11 +127,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
    
-    // We register the callback functions after we have created the window and before the render loop is initiated
-
-    // Make the application to keep drawing images and handling user input until the program has been explicitly told to stop.
-    // -> Create a while loop, "Render loop"
-    while(!glfwWindowShouldClose(window)) // Is the window instructed to close?
+    while(!glfwWindowShouldClose(window))
     {
         // input
         processInput(window);
@@ -147,11 +140,7 @@ int main()
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        
-
-
-        
-        // check and call events and swap the buffers
+        // Check and call events and swap the buffers
         glfwSwapBuffers(window); // Swap the color buffer used during this render iteration and show it as output to the screen
         glfwPollEvents(); // Checks if any events are triggered, update the window state, calls functions(registered callback functions)
     }
