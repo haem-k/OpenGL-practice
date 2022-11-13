@@ -42,6 +42,22 @@ OpenGL - C library in its core
 - no native support for function overloading
 - wherever a function can be called with different types -> defines new functions for each type required
 - ex) glUniform: requires a specific postfix for the type of the uniform you want to set
+
+* glVertexArribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)))
+- index
+- number of components in a single attr. (1/2/3/4)
+- type
+- normalize? : clamp to [-1, 1] / [0, 1]
+- stride: byte offset of consecutive attribute
+- pointer: offset of the first component in the first attribute in the array
+
+Why colors are interpolated?
+- result of fragment interpolation! (in the fragment shader)
+
+* During rasterization
+- results in a lot more fragments than vertices originally specified
+? determines the positions of each of those fragments based on where they reside on the triangle shape
+- based on the positions, interpolates all the fragment shader's input variables
 */
 
 #include <glad/glad.h> // be sure to include GLAD before other header requiring OpenGL
@@ -66,11 +82,12 @@ void processInput(GLFWwindow *window)
 const char *vertexShaderSource =
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "out vec4 vertexColor;\n"
+    "layout (location = 1) in vec3 aColor;\n"
+    "out vec3 ourColor;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = vec4(aPos, 1.0);\n"
-    "   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+    "   ourColor = aColor;\n"
     "}\0";
 // const char *fragmentShaderSource =
 //     "#version 330 core\n"
@@ -83,10 +100,10 @@ const char *vertexShaderSource =
 const char *fragmentShaderSource =
     "#version 330 core\n"
     "out vec4 FragColor;\n"
-    "uniform vec4 ourColor;\n" // we are not using this variable in vertex shader, so no need to define it there
+    "in vec3 ourColor;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = ourColor;\n"
+    "   FragColor = vec4(ourColor, 1.0);\n"
     "}\n\0";
 
 int main()
@@ -169,11 +186,10 @@ int main()
     /* Send vertex data to GPU */
     float vertices[] =
     {
-        // First triangle
-        0.5f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f
+        // position             // colors
+        0.0f, 0.5f, 0.0f,       1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f,
     };
 
     unsigned int indices[] =
@@ -190,11 +206,15 @@ int main()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);                                        // any buffer calls we make on the GL_ARRAY_BUFFER -> used to configure the currently bound buffer, VBO
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // function to copy user-defined data into the currently bound buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0); // enable two different attributes
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -214,10 +234,10 @@ int main()
         glUseProgram(shaderProgram);
         glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // require glUseProgram, set uniform to currently active program
         glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // We want to render triangles from an index buffer
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Check and call events and swap the buffers
         glfwSwapBuffers(window);
