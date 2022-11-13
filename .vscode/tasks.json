@@ -11,7 +11,7 @@
 				"-I${workspaceFolder}/dependencies/include",
 				"-L${workspaceFolder}/dependencies/lib",
 				"${workspaceFolder}/dependencies/lib/libglfw.3.3.dylib",
-				"${workspaceFolder}/hello_triangle_exercise.cpp", // file to run
+				"${workspaceFolder}/shaders.cpp", // file to run
 				"${workspaceFolder}/glad.c",
 				"-o",
 				"${workspaceFolder}/build/app",
