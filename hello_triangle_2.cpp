@@ -108,18 +108,29 @@ int main()
     /* Send vertex data to GPU */
     float vertices[] =
     {
-        -0.5f, -0.5f, 0.0f,
+        // First triangle
+        0.5f, 0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+        -0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f
     };
 
-    unsigned int VBO, VAO;
+    unsigned int indices[] = 
+    {
+        0, 1, 3, // first triangle 
+        1, 2, 3  // second triangle
+    };
+
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
+    glGenBuffers(1, &EBO);
 
+    glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // any buffer calls we make on the GL_ARRAY_BUFFER -> used to configure the currently bound buffer, VBO
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // function to copy user-defined data into the currently bound buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
  
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -138,7 +149,32 @@ int main()
         
         glUseProgram(shaderProgram);  
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
+        
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // 1st: to the front and back of all triangles?
+        // 2nd: draw them in lines
+        // Any subsequent drawing calls will render the triangles in wireframe mode until,
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        
+        // We want to render triangles from an index buffer
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // 2nd argument: count for number of elements
+        // 3rd argument: type of indices
+        // 4th argument: offset in the EBO
+        // Takes indices from the EBO currently bound to the GL_ELEMENT_ARRAY_BUFFER target
+        // -> Bind corresponding EBO each time we want to render an object with indices
+        // -> cumbersome! use VAO
+
+        // Last element buffer object that gets bound while a VAO is bound, 
+        // is stored as the VAO's element buffer object
+        // -> Binding to a VAO, also automatically binds that EBO
+
+        // VAO also stores the unbind calls 
+        // -> make sure you don't unbind the element array buffer before unbinding your VAO
+        // otherwise it doesn't have an EBO configured
+        
+
 
         // Check and call events and swap the buffers
         glfwSwapBuffers(window); // Swap the color buffer used during this render iteration and show it as output to the screen
