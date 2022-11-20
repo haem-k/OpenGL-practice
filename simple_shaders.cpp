@@ -238,6 +238,7 @@ int main()
         int vertexOffsetLocation = glGetUniformLocation(ourShader.ID, "offset"); // does not require glUseProgram
         // glUseProgram(shaderProgram);
         glUniform3f(vertexOffsetLocation, offsetValue, 0.0f, 0.0f); // require glUseProgram, set uniform to currently active program
+        // ourShader.setFloat("offset", offsetValue);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
