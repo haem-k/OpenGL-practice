@@ -64,6 +64,7 @@ Why colors are interpolated?
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath>
+#include "shaders.h"
 
 // when user resizes the window -> viewport adjusted
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -134,53 +135,56 @@ int main()
     }
 
     // ==================================================================================== //
-    // * Compile vertex shader
-    unsigned int vertexShader;                                  // ID for shader object
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);            // provide type of shader we want to create
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // second argument: how many strings we are passing as source code, which is 1 for now
-    glCompileShader(vertexShader);
+    // * Use Shader class
+    Shader ourShader("./shader.vs", "./shader.fs");
+    
+    // // * Compile vertex shader
+    // unsigned int vertexShader;                                  // ID for shader object
+    // vertexShader = glCreateShader(GL_VERTEX_SHADER);            // provide type of shader we want to create
+    // glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // second argument: how many strings we are passing as source code, which is 1 for now
+    // glCompileShader(vertexShader);
 
-    // Check for any errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
-    }
+    // // Check for any errors
+    // int success;
+    // char infoLog[512];
+    // glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    // if (!success)
+    // {
+    //     glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    //     std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+    //               << infoLog << std::endl;
+    // }
 
-    // * Compile fragment shader
-    unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // Check for errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
-    }
+    // // * Compile fragment shader
+    // unsigned int fragmentShader;
+    // fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    // glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    // glCompileShader(fragmentShader);
+    // // Check for errors
+    // glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    // if (!success)
+    // {
+    //     glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+    //     std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
+    //               << infoLog << std::endl;
+    // }
 
-    // * Link the compiled shaders
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram); // -> result: program object that we can activate by calling 'glUseProgram'
-    // Check for errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-                  << infoLog << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    // // * Link the compiled shaders
+    // unsigned int shaderProgram;
+    // shaderProgram = glCreateProgram();
+    // glAttachShader(shaderProgram, vertexShader);
+    // glAttachShader(shaderProgram, fragmentShader);
+    // glLinkProgram(shaderProgram); // -> result: program object that we can activate by calling 'glUseProgram'
+    // // Check for errors
+    // glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    // if (!success)
+    // {
+    //     glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    //     std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+    //               << infoLog << std::endl;
+    // }
+    // glDeleteShader(vertexShader);
+    // glDeleteShader(fragmentShader);
 
     // ==================================================================================== //
     /* Send vertex data to GPU */
@@ -228,11 +232,12 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // * use uniform
+        ourShader.use();
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor"); // does not require glUseProgram
-        glUseProgram(shaderProgram);
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // require glUseProgram, set uniform to currently active program
+        // int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor"); // does not require glUseProgram
+        // glUseProgram(shaderProgram);
+        // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f); // require glUseProgram, set uniform to currently active program
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
